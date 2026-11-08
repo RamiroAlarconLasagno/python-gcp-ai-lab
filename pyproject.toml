@@ -1,7 +1,8 @@
+# pyproject.toml
 [project]
 name = "python-gcp-ai-lab"
 version = "0.1.0"
-description = "Add your description here"
+description = "Portfolio lab: a fictional shipping quote service with a Gemini-powered assistant (RAG and a small agent) on Google Cloud."
 readme = "README.md"
 authors = [
     { name = "Ramiro Alarcon Lasagno", email = "ing.ramiro.a.l@gmail.com" }
@@ -9,9 +10,12 @@ authors = [
 requires-python = ">=3.13"
 dependencies = []
 
-[project.scripts]
-python-gcp-ai-lab = "python_gcp_ai_lab:main"
+[tool.pytest.ini_options]
+pythonpath = ["."]
 
-[build-system]
-requires = ["uv_build>=0.13.7,<0.14.0"]
-build-backend = "uv_build"
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]

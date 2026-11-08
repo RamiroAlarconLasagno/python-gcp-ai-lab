@@ -1,3 +1,5 @@
+# .gitignore
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -9,5 +11,21 @@ wheels/
 # Virtual environments
 .venv
 
-#Documentation
-docs/
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment (the example file is committed)
+.env
+!.env.example
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Google Cloud credentials
+application_default_credentials.json
+*-key.json
