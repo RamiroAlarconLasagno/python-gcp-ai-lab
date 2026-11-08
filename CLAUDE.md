@@ -1,7 +1,7 @@
 <!-- CLAUDE.md -->
 # python-gcp-ai-lab
 
-Portfolio lab for a Senior Backend Python role (Google Cloud, Gemini). One product: a fictional shipping quote service plus an assistant that answers questions about fictional shipping policies (RAG and a small agent). Full plan: `docs/PLAN.md` (read only the stage you are working on). Progress: `docs/AVANCE.md`.
+Portfolio lab for a Senior Backend Python role (Google Cloud, Gemini). One product: a fictional shipping quote service plus an assistant that answers questions about fictional shipping policies (RAG and a small agent). Full plan: `privado/PLAN.md` (local file, ignored by git; read only the stage you are working on). Overall progress is tracked outside the repo.
 
 ## How to work with me
 - Respond in Spanish. Repo docs (README, design notes, TDD) in English. Commits in Spanish, imperative, with the stage id: `1.1: agrega cotizador puro con pruebas`.
@@ -38,4 +38,4 @@ Portfolio lab for a Senior Backend Python role (Google Cloud, Gemini). One produ
 - Label every resource `lab=gcp-ai`.
 
 ## Closing a stage
-Check the stage's "done when", ask me the 3 questions (why this option, how it fails, what it costs and how it is deleted), remind me to run `scripts/inventario.sh` (a bash script: from Git Bash, `bash scripts/inventario.sh`), and update `docs/AVANCE.md` and `docs/etapas/<id>.md`.
+Check the stage's "done when", ask me the 3 questions (why this option, how it fails, what it costs and how it is deleted), remind me to run `scripts/inventario.sh` (a bash script: from Git Bash, `bash scripts/inventario.sh`), and update `docs/etapas/<id>.md`.

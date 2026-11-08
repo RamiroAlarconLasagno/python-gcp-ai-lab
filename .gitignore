@@ -29,3 +29,6 @@ wheels/
 # Google Cloud credentials
 application_default_credentials.json
 *-key.json
+
+# Private local notes (study plan): never versioned
+privado/
