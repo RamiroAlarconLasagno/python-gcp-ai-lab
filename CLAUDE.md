@@ -10,6 +10,7 @@ Portfolio lab for a Senior Backend Python role (Google Cloud, Gemini). One produ
 - Before a technical choice, offer alternatives with a recommendation and let me decide.
 - Verify library, SDK, model and price versions in current docs or with `uv add`, never from memory.
 - First line of every file: a comment with its relative path. Fix the original file; never create copies.
+- Commit messages: Spanish subject line with the stage id (max ~72 chars), a blank line, then a body with bullets explaining what changed and why, plus what was verified.
 
 ## Simplicity rule (plan section 2.1)
 - Start with the simplest version that meets the requirement: function, then module, then class, then interface or pattern.
