@@ -1,0 +1,41 @@
+# app/tariffs.toml
+# Fictional shipping tariffs (ARS). Loaded and validated by app/tariffs.py at import.
+# Prices change often: edit this file, not the code. All numbers must be > 0.
+
+# Modes the quoting code knows how to price; must be exactly these two.
+modes = ["standard", "urgent"]
+
+# Volumetric weight (kg) = length x width x height (cm) / volumetric_divisor.
+volumetric_divisor = 5000
+
+# Accepted actual weight range (kg); the billable weight must also be <= max_weight_kg.
+min_weight_kg = 0.1
+max_weight_kg = 30
+
+# Urgent surcharge as a fraction of the (already rounded) freight.
+urgent_surcharge_rate = 0.50
+
+# Per zone: base price, price per billable kg and delivery time in business days.
+[zones.local]
+base = 3500
+per_kg = 800
+standard_days = 2
+urgent_days = 1
+
+[zones.amba]  # CABA + GBA
+base = 9500
+per_kg = 1100
+standard_days = 4
+urgent_days = 2
+
+[zones.national]  # rest of the country
+base = 14000
+per_kg = 1500
+standard_days = 6
+urgent_days = 3
+
+[zones.international]
+base = 45000
+per_kg = 5000
+standard_days = 12
+urgent_days = 6
