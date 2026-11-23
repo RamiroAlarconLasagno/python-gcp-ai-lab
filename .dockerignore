@@ -1,0 +1,19 @@
+# .dockerignore
+# Keep the build context small and free of secrets and local state.
+.git
+.venv
+.env
+privado/
+tests/
+docs/
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+Dockerfile
+.dockerignore
