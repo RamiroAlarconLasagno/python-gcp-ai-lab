@@ -1,13 +1,22 @@
 # tests/test_api.py
-"""Pruebas HTTP de la API: health, cotización válida y rechazos con 422."""
+"""Pruebas HTTP de la API contra la base de docker compose (marcadas integration).
 
+Requieren PostgreSQL levantado y migrado: docker compose up -d db y
+uv run alembic upgrade head (o docker compose up, que migra al arrancar).
+"""
+
+import uuid
 from collections.abc import AsyncIterator
+from datetime import datetime, timedelta
 from typing import Any
 
 import httpx
 import pytest
 
+from app.db import get_engine
 from app.main import app
+
+pytestmark = pytest.mark.integration
 
 VALID_REQUEST: dict[str, Any] = {
     "zone": "amba",
@@ -17,6 +26,23 @@ VALID_REQUEST: dict[str, Any] = {
     "height_cm": 10,
     "mode": "standard",
 }
+
+
+BREAKDOWN_KEYS = (
+    "zone",
+    "mode",
+    "length_cm",
+    "width_cm",
+    "height_cm",
+    "currency",
+    "actual_weight_kg",
+    "volumetric_weight_kg",
+    "billable_weight_kg",
+    "freight",
+    "urgent_surcharge",
+    "total",
+    "delivery_days",
+)
 
 
 def assert_business_rule(response: httpx.Response, message_start: str) -> None:
@@ -37,10 +63,15 @@ def anyio_backend() -> str:
 
 @pytest.fixture
 async def client() -> AsyncIterator[httpx.AsyncClient]:
-    """Cliente HTTP que llama a la app en memoria, sin red ni servidor."""
+    """Cliente HTTP que llama a la app en memoria, sin servidor.
+
+    Al terminar cierra el pool de la base: cada test corre en su propio event
+    loop y las conexiones de asyncpg no se pueden reutilizar entre loops.
+    """
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
+    await get_engine().dispose()
 
 
 @pytest.mark.anyio
@@ -53,10 +84,20 @@ async def test_health(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_valid_quote(client: httpx.AsyncClient) -> None:
-    """AMBA, 2,5 kg, 20x15x10, standard: 200 con total "12800.00" en texto."""
+    """AMBA, 2,5 kg, 20x15x10, standard: 200 con id, vence en 48 h y total "12800.00"."""
     response = await client.post("/quotes", json=VALID_REQUEST)
     assert response.status_code == 200
-    assert response.json() == {
+    body = response.json()
+    uuid.UUID(body["id"])
+    created_at = datetime.fromisoformat(body["created_at"])
+    expires_at = datetime.fromisoformat(body["expires_at"])
+    assert expires_at - created_at == timedelta(hours=48)
+    assert {k: body[k] for k in BREAKDOWN_KEYS} == {
+        "zone": "amba",
+        "mode": "standard",
+        "length_cm": "20",
+        "width_cm": "15",
+        "height_cm": "10",
         "currency": "ARS",
         "actual_weight_kg": "2.5",
         "volumetric_weight_kg": "0.6",
@@ -66,6 +107,32 @@ async def test_valid_quote(client: httpx.AsyncClient) -> None:
         "total": "12800.00",
         "delivery_days": 4,
     }
+
+
+@pytest.mark.anyio
+async def test_saved_quote_can_be_read(client: httpx.AsyncClient) -> None:
+    """Lo que devuelve POST /quotes se lee igual con GET /quotes/{id}."""
+    created = await client.post("/quotes", json={**VALID_REQUEST, "mode": "urgent"})
+    assert created.status_code == 200
+    response = await client.get(f"/quotes/{created.json()['id']}")
+    assert response.status_code == 200
+    assert response.json() == created.json()
+    assert response.json()["total"] == "19200.00"
+
+
+@pytest.mark.anyio
+async def test_unknown_id_returns_404(client: httpx.AsyncClient) -> None:
+    """Un id que no existe responde 404 con el mismo formato de error."""
+    quote_id = uuid.uuid4()
+    response = await client.get(f"/quotes/{quote_id}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == [
+        {
+            "loc": ["path", "quote_id"],
+            "msg": f"No existe una cotización con id {quote_id}",
+            "type": "not_found",
+        }
+    ]
 
 
 @pytest.mark.anyio

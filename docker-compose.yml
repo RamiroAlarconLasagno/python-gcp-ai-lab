@@ -1,0 +1,37 @@
+# docker-compose.yml
+# Local product: PostgreSQL with pgvector + the API built from the Dockerfile.
+# Credentials here are for local development only; stage 2.2 moves secrets to
+# Secret Manager.
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17
+    environment:
+      POSTGRES_USER: quotes
+      POSTGRES_PASSWORD: quotes
+      POSTGRES_DB: quotes
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quotes -d quotes"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+asyncpg://quotes:quotes@db:5432/quotes
+      PORT: "8080"
+    ports:
+      - "8000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Apply migrations, then start the API (exec makes uvicorn PID 1).
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port $${PORT}"]
+
+volumes:
+  pgdata:

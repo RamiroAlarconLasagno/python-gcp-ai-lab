@@ -9,12 +9,20 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.20.1",
+    "asyncpg>=0.32.0",
     "fastapi>=0.165.0",
+    "pydantic-settings>=2.16.3",
+    "sqlalchemy[asyncio]>=2.1.9",
     "uvicorn>=0.54.0",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+# Integration tests need the docker compose database; they are skipped by default.
+# Run them with: uv run pytest -m integration (or -m "" for everything).
+markers = ["integration: needs the PostgreSQL database from docker compose"]
+addopts = "-m 'not integration'"
 
 [dependency-groups]
 dev = [
