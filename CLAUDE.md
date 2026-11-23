@@ -34,7 +34,8 @@ Portfolio lab for a Senior Backend Python role (Google Cloud, Gemini). One produ
 - Windows native, PowerShell. Python 3.13 managed by `uv`.
 - Dependencies: `uv add <pkg>` (dev tools: `uv add --dev <pkg>`). Never `pip install`.
 - Environment: `uv sync` creates or updates `.venv` from `uv.lock`, including the `dev` group (pytest, ruff, mypy, pre-commit).
-- Tests: `uv run pytest`. Single test: `uv run pytest tests/test_smoke.py::test_app_is_importable`.
+- Tests: `uv run pytest` (unit only; integration is excluded by default). Integration: `uv run pytest -m integration` (needs `docker compose up -d db` and `uv run alembic upgrade head`); everything: `uv run pytest -m ""`. Single test: `uv run pytest tests/test_smoke.py::test_app_is_importable`.
+- Local stack: `docker compose up --build` (PostgreSQL with pgvector + API on host port 8000; the API runs `alembic upgrade head` on startup). Migrations live in `migrations/`.
 - Lint: `uv run ruff check .`. Types: `uv run mypy app` (only `app/`; tests are not type-checked).
 - Layout: `app/` (flat modules: `main.py`, `quoting.py`, `db.py`, `llm.py`...), `tests/`, `infra/` (Terraform), `scripts/`, `docs/`.
 - Identifiers in English (no accents or ñ). Docstrings in Spanish.
