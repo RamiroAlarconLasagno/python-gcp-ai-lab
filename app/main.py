@@ -54,7 +54,11 @@ async def health() -> dict[str, str]:
 
 @app.post("/quotes")
 async def create_quote(request: QuoteRequest) -> QuoteResponse:
-    """Calcula una cotización; un error de negocio del cotizador responde 422."""
+    """Calcula una cotización.
+
+    Un error de negocio del cotizador responde 422 con el mismo formato que los
+    errores de Pydantic: una lista de {loc, msg, type}.
+    """
     try:
         quote = calculate_quote(
             zone=request.zone,
@@ -65,5 +69,8 @@ async def create_quote(request: QuoteRequest) -> QuoteResponse:
             mode=request.mode,
         )
     except ValueError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+        raise HTTPException(
+            status_code=422,
+            detail=[{"loc": ["body"], "msg": str(error), "type": "business_rule"}],
+        ) from error
     return QuoteResponse(**asdict(quote))

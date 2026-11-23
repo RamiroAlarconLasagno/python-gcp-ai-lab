@@ -19,6 +19,16 @@ VALID_REQUEST: dict[str, Any] = {
 }
 
 
+def assert_business_rule(response: httpx.Response, message_start: str) -> None:
+    """Comprueba un 422 del cotizador con el mismo formato que los de Pydantic."""
+    assert response.status_code == 422
+    errors = response.json()["detail"]
+    assert len(errors) == 1
+    assert errors[0]["loc"] == ["body"]
+    assert errors[0]["type"] == "business_rule"
+    assert errors[0]["msg"].startswith(message_start)
+
+
 @pytest.fixture
 def anyio_backend() -> str:
     """Corre las pruebas async solo con asyncio (trio no está instalado)."""
@@ -83,16 +93,14 @@ async def test_negative_weight_is_rejected(client: httpx.AsyncClient) -> None:
 async def test_unknown_zone_is_rejected(client: httpx.AsyncClient) -> None:
     """Zona inexistente: 422 con el mensaje del cotizador."""
     response = await client.post("/quotes", json={**VALID_REQUEST, "zone": "mars"})
-    assert response.status_code == 422
-    assert response.json()["detail"].startswith("Zona inexistente: 'mars'")
+    assert_business_rule(response, "Zona inexistente: 'mars'")
 
 
 @pytest.mark.anyio
 async def test_invalid_mode_is_rejected(client: httpx.AsyncClient) -> None:
     """Modalidad inválida: 422 con el mensaje del cotizador."""
     response = await client.post("/quotes", json={**VALID_REQUEST, "mode": "express"})
-    assert response.status_code == 422
-    assert response.json()["detail"].startswith("Modalidad inexistente: 'express'")
+    assert_business_rule(response, "Modalidad inexistente: 'express'")
 
 
 @pytest.mark.anyio
@@ -106,5 +114,4 @@ async def test_balloon_is_rejected(client: httpx.AsyncClient) -> None:
         "height_cm": 100,
     }
     response = await client.post("/quotes", json=body)
-    assert response.status_code == 422
-    assert "facturable (200 kg)" in response.json()["detail"]
+    assert_business_rule(response, "El peso facturable (200 kg)")
