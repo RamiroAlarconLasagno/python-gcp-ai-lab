@@ -26,7 +26,9 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # The URL comes from the app settings (environment or .env), not from alembic.ini.
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+# "%" is doubled because the Alembic config interpolates it (an URL-encoded password
+# could contain it).
+config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
