@@ -14,7 +14,10 @@ Status values: **pending**, **local** (works on this machine), **blocked**, **ve
 | 1.2 | Async API with FastAPI (`/health`, `/quotes`) | local | [docs/etapas/1.2.md](docs/etapas/1.2.md) |
 | 1.3 | Multi-stage Dockerfile with uv | local | [docs/etapas/1.3.md](docs/etapas/1.3.md) |
 | 2.1 | PostgreSQL + pgvector, SQLAlchemy async, Alembic, persistent quotes | local | [docs/etapas/2.1.md](docs/etapas/2.1.md) |
-| 1.4+ | Terraform, Cloud Run, Secret Manager, AI, operations | pending | |
+| 1.4 | Terraform with remote state (GCS), inventory script | verified in GCP | [docs/etapas/1.4.md](docs/etapas/1.4.md) |
+| 1.5 | Private Cloud Run service, Artifact Registry, runtime service account | verified in GCP | [docs/etapas/1.5.md](docs/etapas/1.5.md) |
+| 3.7 | Cloud SQL window (PostgreSQL 17 + pgvector), migration job | verified in GCP (retire in B6) | [docs/etapas/3.7.md](docs/etapas/3.7.md) |
+| 3.1+ | AI (RAG, agent), operations, CI/CD | pending | |
 
 Design notes: [docs/design/](docs/design/).
 
@@ -44,6 +47,47 @@ To run the API on the host instead (database still in compose):
 docker compose up -d db
 uv run alembic upgrade head
 uv run uvicorn app.main:app --reload
+```
+
+## Deploy to Google Cloud
+
+The cloud environment is temporary: it bills while it exists (mainly Cloud SQL, about US$0.55/day). Costs and the ordered retirement steps are in [docs/costos-y-retiro.md](docs/costos-y-retiro.md).
+
+Requirements: Terraform, the gcloud CLI, and Application Default Credentials (`gcloud auth application-default login`). No service account keys are used. Region: `us-central1`. Every resource is labeled `lab=gcp-ai`.
+
+```
+# 1. Remote state bucket (once; its own state stays local)
+terraform -chdir=infra/bootstrap init
+terraform -chdir=infra/bootstrap apply
+
+# 2. APIs, Artifact Registry and the runtime service account (the registry must exist before the push)
+terraform -chdir=infra init
+terraform -chdir=infra apply -var "image=unused" -target=google_project_service.enabled -target=google_artifact_registry_repository.docker -target=google_service_account.runtime
+
+# 3. Build and push the image
+gcloud auth configure-docker us-central1-docker.pkg.dev
+docker build -t us-central1-docker.pkg.dev/python-gcp-ai-lab/quotes/api:<tag> .
+docker push us-central1-docker.pkg.dev/python-gcp-ai-lab/quotes/api:<tag>
+
+# 4. Everything else (Cloud SQL, secret, Cloud Run service and migration job)
+terraform -chdir=infra apply -var "image=us-central1-docker.pkg.dev/python-gcp-ai-lab/quotes/api:<tag>"
+gcloud run jobs execute quotes-migrate --region us-central1 --wait
+```
+
+The service is private: call it with an identity token.
+
+```
+curl.exe -H "Authorization: Bearer $(gcloud auth print-identity-token)" <service_url>/health
+```
+
+`<service_url>` comes from `terraform -chdir=infra output service_url`. To see what exists in the project, run `bash scripts/inventario.sh` from Git Bash.
+
+### Retire
+
+```
+terraform -chdir=infra destroy -var "image=unused"
+terraform -chdir=infra/bootstrap destroy
+bash scripts/inventario.sh   # nothing from the lab should remain
 ```
 
 ## Tests

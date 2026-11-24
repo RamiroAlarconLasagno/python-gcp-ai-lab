@@ -1,0 +1,54 @@
+# docs/evidencia/b2/inventario.txt
+Inventario del proyecto python-gcp-ai-lab (2026-11-24T03:02:35Z)
+
+== Cloud Run: servicios ==
+NAME        REGION       URL                                         LAB
+quotes-api  us-central1  https://quotes-api-umbkfsx72a-uc.a.run.app  gcp-ai
+
+== Cloud Run: jobs ==
+NAME            REGION       LAB
+quotes-migrate  us-central1  gcp-ai
+
+== Cloud SQL: instancias (cobran aunque no haya tráfico) ==
+NAME           DATABASE_VERSION  REGION       TIER         STATUS    LAB
+quotes-cdc0b8  POSTGRES_17       us-central1  db-f1-micro  RUNNABLE  gcp-ai
+
+== Cloud SQL: backups ==
+-- quotes-cdc0b8
+
+== GKE: clusters ==
+(API container.googleapis.com deshabilitada: no hay recursos de este tipo)
+
+== Cloud Functions ==
+(API cloudfunctions.googleapis.com deshabilitada: no hay recursos de este tipo)
+
+== Cloud Storage: buckets ==
+NAME                       LOCATION     VERSIONING_ENABLED  LAB
+python-gcp-ai-lab-tfstate  US-CENTRAL1  True                gcp-ai
+
+== Artifact Registry: repositorios (incluye gcf-artifacts de Cloud Functions) ==
+Listing items under project python-gcp-ai-lab, across all locations.
+
+REPOSITORY  FORMAT  LOCATION  SIZE (MB)  LAB
+quotes      DOCKER            148.448    gcp-ai
+
+== Artifact Registry: imágenes del repo quotes ==
+Listing items under project python-gcp-ai-lab, location us-central1, repository quotes.
+
+IMAGE  TAGS     CREATE_TIME
+api             2026-11-24T02:44:35
+api    f08db3b  2026-11-24T02:44:36
+api             2026-11-24T02:44:35
+
+== Secret Manager: secretos ==
+NAME                CREATED              LAB
+quotes-db-password  2026-11-24T02:45:14  gcp-ai
+
+== Pub/Sub: topics y suscripciones ==
+
+== BigQuery: datasets ==
+
+== Workload Identity: pools ==
+
+== Red: direcciones IP y forwarding rules (las reservadas cobran) ==
+(API compute.googleapis.com deshabilitada: no hay recursos de este tipo)

@@ -1,0 +1,15 @@
+# docs/evidencia/b2/terraform-plan.txt
+# Segundo plan después del apply (2026-11-24T02:58:19Z)
+$ terraform -chdir=infra plan -var "image=us-central1-docker.pkg.dev/python-gcp-ai-lab/quotes/api:f08db3b"
+Acquiring state lock. This may take a few moments...
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+
+$ terraform -chdir=infra output
+migrate_job = "quotes-migrate"
+registry = "us-central1-docker.pkg.dev/python-gcp-ai-lab/quotes"
+service_url = "https://quotes-api-umbkfsx72a-uc.a.run.app"
+sql_instance = "quotes-cdc0b8"

@@ -1,0 +1,22 @@
+# docs/evidencia/b2/curl.txt
+# Cloud Run privado (quotes-api), 2026-11-24T02:58:08Z. URL: https://quotes-api-umbkfsx72a-uc.a.run.app
+
+## Sin token (debe rechazar: el servicio es privado)
+$ curl.exe -s -o /dev/null -w "%{http_code}" $URL/health
+HTTP 403
+
+## GET /health con token de identidad
+$ curl.exe -s -H "Authorization: Bearer $(gcloud auth print-identity-token)" $URL/health
+{"status":"ok"}
+HTTP 200
+
+## POST /quotes (AMBA 2,5 kg 20x15x10 standard)
+{"id":"871ccf2a-3591-4570-8096-d4bad5457396","created_at":"2026-11-24T02:58:12.278684Z","expires_at":"2026-11-26T02:58:12.278684Z","zone":"amba","mode":"standard","length_cm":"20","width_cm":"15","height_cm":"10","currency":"ARS","actual_weight_kg":"2.5","volumetric_weight_kg":"0.6","billable_weight_kg":"3","freight":"12800.00","urgent_surcharge":"0.00","total":"12800.00","delivery_days":4}
+
+## GET /quotes/871ccf2a-3591-4570-8096-d4bad5457396
+{"id":"871ccf2a-3591-4570-8096-d4bad5457396","created_at":"2026-11-24T02:58:12.278684Z","expires_at":"2026-11-26T02:58:12.278684Z","zone":"amba","mode":"standard","length_cm":"20","width_cm":"15","height_cm":"10","currency":"ARS","actual_weight_kg":"2.5","volumetric_weight_kg":"0.6","billable_weight_kg":"3","freight":"12800.00","urgent_surcharge":"0.00","total":"12800.00","delivery_days":4}
+=> idéntica a la respuesta del POST
+
+## GET /quotes/{id inexistente}
+{"detail":[{"loc":["path","quote_id"],"msg":"No existe una cotización con id 00000000-0000-0000-0000-000000000000","type":"not_found"}]}
+HTTP 404
