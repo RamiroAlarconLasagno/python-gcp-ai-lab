@@ -12,8 +12,8 @@ Status values: **pending**, **local** (works on this machine), **blocked**, **ve
 | 0.2 | Local environment, repo, pre-commit (gitleaks, ruff, mypy) | local | [docs/etapas/0.2.md](docs/etapas/0.2.md) |
 | 1.1 | Pure quoting function with `Decimal`, tariffs in TOML | local | [docs/etapas/1.1.md](docs/etapas/1.1.md) |
 | 1.2 | Async API with FastAPI (`/health`, `/quotes`) | local | [docs/etapas/1.2.md](docs/etapas/1.2.md) |
-| 1.3 | Multi-stage Dockerfile with uv | blocked (image build, see record) | [docs/etapas/1.3.md](docs/etapas/1.3.md) |
-| 2.1 | PostgreSQL + pgvector, SQLAlchemy async, Alembic, persistent quotes | local (database in compose, API on the host) | [docs/etapas/2.1.md](docs/etapas/2.1.md) |
+| 1.3 | Multi-stage Dockerfile with uv | local | [docs/etapas/1.3.md](docs/etapas/1.3.md) |
+| 2.1 | PostgreSQL + pgvector, SQLAlchemy async, Alembic, persistent quotes | local | [docs/etapas/2.1.md](docs/etapas/2.1.md) |
 | 1.4+ | Terraform, Cloud Run, Secret Manager, AI, operations | pending | |
 
 Design notes: [docs/design/](docs/design/).
